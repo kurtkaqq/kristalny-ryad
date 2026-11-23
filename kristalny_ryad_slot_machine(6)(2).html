@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Кристальный ряд — три в ряд</title>
+<style>
+:root{--bg:#101629;--panel:#1b2540;--line:#526b9b;--text:#ffffff;--muted:#d1ddfa;--gold:#ffe36e}
+*{box-sizing:border-box}body{margin:0;min-height:100vh;background:radial-gradient(ellipse at 50% 0%,#526fb0 0,#263b68 38%,#111b35 100%);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,sans-serif;display:flex;justify-content:center;padding:16px 12px 28px}
+.wrap{width:min(100%,520px)}header{text-align:center;margin:4px 0 14px}h1{font-size:clamp(25px,7vw,34px);margin:0;font-weight:900;letter-spacing:.3px}header p{margin:4px 0;color:var(--muted);font-size:13px}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}.stat{background:linear-gradient(145deg,#354f83,#202f55);border:1px solid #718bc1;border-radius:15px;padding:10px 14px;box-shadow:0 7px 18px #0003}.stat small{display:block;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:1px}.stat strong{font-size:25px;font-variant-numeric:tabular-nums}.coin{color:var(--gold)}
+.gamebox{background:linear-gradient(145deg,#304b7b,#1b2c52);border:1px solid #718bc1;border-radius:20px;padding:10px;box-shadow:0 18px 45px #0005}.board{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;touch-action:none;user-select:none;-webkit-user-select:none;aspect-ratio:1/1}.cell{border:1px solid #46577c;border-radius:11px;background:linear-gradient(145deg,#526b9a,#293e68);display:flex;align-items:center;justify-content:center;min-width:0;position:relative;overflow:hidden;transition:transform .12s,filter .12s,border-color .12s}.cell:before{content:"";position:absolute;inset:2px;border-radius:9px;background:linear-gradient(135deg,#ffffff12,transparent 55%);pointer-events:none}.cell.selected{border:2px solid #fff3a1;box-shadow:0 0 0 2px #ffd45c66,0 0 18px #ffd45c88;transform:scale(.94)}.gem{width:72%;height:72%;display:block;pointer-events:none;clip-path:polygon(50% 0,88% 18%,100% 55%,72% 100%,28% 100%,0 55%,12% 18%);position:relative;filter:drop-shadow(0 0 4px #ffffff66) drop-shadow(0 0 8px currentColor) drop-shadow(0 3px 3px #0008)}.gem:before{content:"";position:absolute;inset:0;background:linear-gradient(135deg,#ffffffa8 0 18%,transparent 19% 48%,#0002 49% 100%);clip-path:polygon(50% 0,88% 18%,50% 100%,12% 18%)}.gem:after{content:"";position:absolute;inset:0;background:linear-gradient(45deg,transparent 48%,#ffffff55 49% 52%,transparent 53%);}.cell.pop{animation:pop .22s ease-in forwards}@keyframes pop{to{transform:scale(.1);opacity:0;filter:brightness(2)}}.hint{text-align:center;color:var(--muted);font-size:12px;margin:11px 3px 2px}.controls{display:flex;gap:9px;margin-top:12px}.btn{flex:1;border:1px solid #52658e;background:linear-gradient(180deg,#34476f,#263656);color:white;border-radius:13px;padding:12px 10px;font-weight:750;font-size:14px}.btn:active{transform:scale(.98)}.message{min-height:22px;text-align:center;margin:10px 0 0;color:#c8d5f5;font-size:13px}.rules{margin-top:14px;padding:13px 15px;border-radius:15px;background:#151f37;border:1px solid #303f60;color:#c5cfe7;font-size:12px;line-height:1.5}.rules b{color:white}.toast{position:fixed;left:50%;bottom:22px;transform:translate(-50%,20px);opacity:0;background:#263958;border:1px solid #657ba7;color:#fff;padding:10px 16px;border-radius:20px;font-weight:700;pointer-events:none;transition:.2s;z-index:4;white-space:nowrap}.toast.show{opacity:1;transform:translate(-50%,0)}
+/* Игровой автомат */
+.slot-open{margin-top:10px;width:100%;border:1px solid #ffe18a;background:linear-gradient(180deg,#f4b83f,#a85a18);color:#fffdf1;border-radius:14px;padding:13px;font-size:15px;font-weight:900;box-shadow:inset 0 1px #fff9,0 0 18px #ffcf5577,0 6px 16px #0005;text-shadow:0 1px 3px #673500}
+.game-screen.hidden,.slot-screen.hidden{display:none}.slot-screen{margin-top:10px;background:linear-gradient(145deg,#3e6098,#192a50);border:1px solid #a1b9eb;border-radius:22px;padding:16px;box-shadow:0 20px 45px #0006}.slot-window{width:100%;max-width:440px;margin:auto}.slot-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}.slot-head h2{margin:0;font-size:22px}.slot-close{border:1px solid #617294;background:#293957;color:white;border-radius:10px;width:38px;height:38px;font-size:21px}.slot-machine{display:flex;align-items:center;gap:8px;background:linear-gradient(180deg,#f4c45c,#9b5b27 22%,#59351f);border:3px solid #ffe18a;border-radius:18px;padding:12px;box-shadow:inset 0 0 0 2px #ffe6a044,0 8px 18px #0006}.reels{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;flex:1;min-width:0}.reel{height:86px;border-radius:12px;background:linear-gradient(180deg,#f8f0d7,#fff 48%,#e7dfc8);border:2px solid #d5b96f;display:grid;place-items:center;font-size:clamp(34px,10vw,48px);box-shadow:inset 0 3px 8px #0002;overflow:hidden}.reel.spinning{animation:reelShake .12s linear infinite alternate}@keyframes reelShake{from{transform:translateY(-2px)}to{transform:translateY(2px)}}
+.lever{align-self:stretch;width:56px;flex:0 0 56px;border:0;background:transparent;position:relative;display:flex;align-items:center;justify-content:center;padding:0;touch-action:manipulation}.lever-track{position:absolute;right:18px;top:15px;bottom:15px;width:9px;border-radius:8px;background:linear-gradient(90deg,#777,#eee,#777);box-shadow:0 1px 4px #0008}.lever-arm{position:absolute;right:17px;top:22px;width:11px;height:43px;border-radius:8px;background:linear-gradient(90deg,#8d8d8d,#f4f4f4,#777);transform-origin:50% 8px;transition:transform .22s cubic-bezier(.2,.8,.2,1);z-index:1}.lever-knob{position:absolute;right:5px;top:13px;width:34px;height:34px;border-radius:50%;background:radial-gradient(circle at 35% 28%,#ffb1b1,#e12c39 55%,#7d101c);border:2px solid #ffc2a3;box-shadow:0 3px 7px #0008;transition:transform .22s;z-index:2}.lever.pulled .lever-arm{animation:leverArmPull .42s cubic-bezier(.2,.8,.25,1)}.lever.pulled .lever-knob{animation:leverKnobPull .42s cubic-bezier(.2,.8,.25,1)}@keyframes leverArmPull{0%,100%{transform:rotate(0)}45%,70%{transform:translateY(26px) rotate(24deg)}}@keyframes leverKnobPull{0%,100%{transform:translateY(0)}45%,70%{transform:translateY(35px)}}.lever:disabled{opacity:.75}.reel.seven{color:#ffb400;font-weight:1000;font-family:Georgia,serif;font-size:clamp(43px,12vw,58px);text-shadow:0 0 3px #fff6,0 0 9px #ffcf36,0 0 18px #ff8c00,0 2px 2px #633000}.slot-cost{text-align:center;margin:14px 0 6px;color:#ffe18a;font-weight:850}.slot-result{text-align:center;min-height:26px;color:#f7e8bb;font-weight:750;font-size:14px}.slot-paytable{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:12px;font-size:12px;color:#d5def3}.slot-paytable div{background:#ffffff0b;border:1px solid #ffffff18;border-radius:9px;padding:7px;text-align:center}.slot-spinning-note{text-align:center;color:#aeb9d6;font-size:11px;margin-top:7px}
+</style></head>
+<body><main class="wrap">
+<header><h1>💎 Кристальный ряд</h1><p>Бесконечная игра «три в ряд»</p></header>
+<section class="stats"><div class="stat"><small>🪙 Монетки</small><strong class="coin" id="coins">0</strong></div><div class="stat"><small>✨ Камней собрано</small><strong id="cleared">0</strong></div></section>
+<section class="game-screen" id="gameScreen">
+<section class="gamebox"><div class="board" id="board" aria-label="Игровое поле 4 на 4"></div><div class="hint">Четыре вида кристаллов — больше шансов собрать ряд! Нажми на камень, затем на соседний — или перетащи его.</div></section>
+<div class="controls"><button class="btn" id="newgame">↻ Новая игра</button><button class="btn" id="shuffle">🔀 Перемешать</button></div>
+<button class="slot-open" id="openSlot">🎰 Игровой автомат</button>
+<div class="message" id="message">Собери три одинаковых камня в ряд!</div>
+<div class="rules"><b>Правила:</b> меняй местами соседние камни по горизонтали или вертикали. За каждый исчезнувший камень получаешь <b>1 монетку</b>. После совпадения появляются монетки, которые летят к счётчику, а на поле приходят новые случайные драгоценности. Новые камни подбираются так, чтобы сами по себе не создавать мгновенные совпадения и бесконечные цепочки. Здесь четыре вида камней, поэтому комбинации собираются чаще. Если доступных ходов не останется, поле автоматически перемешается. Играть можно бесконечно — уровней и ограничения по ходам нет.</div>
+</section>
+<section class="slot-screen hidden" id="slotScreen">
+<div class="slot-head"><h2>🎰 Игровой автомат</h2><button class="slot-close" id="closeSlot" aria-label="Назад к кристаллам">←</button></div>
+<div class="slot-machine">
+<div class="reels"><div class="reel" id="reel0">🍎</div><div class="reel" id="reel1">🍌</div><div class="reel" id="reel2">🍇</div></div>
+<button class="lever" id="lever" aria-label="Потянуть рычаг"><span class="lever-track"></span><span class="lever-arm"></span><span class="lever-knob"></span></button>
+</div>
+<div class="slot-cost">Стоимость прокрутки: 10 🪙</div><div class="slot-result" id="slotResult">Нажми на рычаг, чтобы испытать удачу!</div><div class="slot-spinning-note">Три одинаковых символа — выигрыш · Два соседних одинаковых — возврат 10 🪙</div><div class="slot-paytable"><div>🍎 🍎 🍎 — <b>20 монет</b></div><div>🍌 🍌 🍌 — <b>50 монет</b></div><div>🍇 🍇 🍇 — <b>80 монет</b></div><div><span style="color:#ffbf24;font-weight:1000;text-shadow:0 0 8px #ff9b00">7 7 7</span> — <b>200 монет</b></div></div>
+</section>
+</main><div class="toast" id="toast"></div>
+<script>
+(()=>{
+'use strict';
+const N=4, TYPES=['ruby','sapphire','emerald','amethyst'];
+const GEM_COLORS=['linear-gradient(145deg,#fff0f3 0%,#ff657f 18%,#ed174d 48%,#a80039 76%,#520b36 100%)','linear-gradient(145deg,#f1ffff 0%,#69e2ff 18%,#168dff 48%,#164acb 76%,#101f70 100%)','linear-gradient(145deg,#f0fff4 0%,#7dffad 18%,#12d978 48%,#07834d 76%,#06402f 100%)','linear-gradient(145deg,#fff2ff 0%,#e6a0ff 18%,#b54bff 48%,#7220c7 76%,#35105f 100%)'];
+const boardEl=document.getElementById('board'),coinsEl=document.getElementById('coins'),clearedEl=document.getElementById('cleared'),msg=document.getElementById('message'),toastEl=document.getElementById('toast');
+let grid=[],coins=0,cleared=0,selected=null,busy=false,dragStart=null,dragged=false,toastTimer;
+const rand=()=>Math.floor(Math.random()*TYPES.length);
+function setStats(){coinsEl.textContent=coins;clearedEl.textContent=cleared}
+function makeGrid(){let attempts=0;do{grid=Array.from({length:N},()=>Array(N).fill(0));for(let r=0;r<N;r++)for(let c=0;c<N;c++){let t;do{t=rand()}while((c>=2&&grid[r][c-1]===t&&grid[r][c-2]===t)||(r>=2&&grid[r-1][c]===t&&grid[r-2][c]===t));grid[r][c]=t}}while(matches().length&&attempts++<30)}
+function render(){const frag=document.createDocumentFragment();for(let r=0;r<N;r++)for(let c=0;c<N;c++){const el=document.createElement('div');el.className='cell'+(selected&&selected.r===r&&selected.c===c?' selected':'');el.dataset.r=r;el.dataset.c=c;const gem=document.createElement('span');gem.className='gem';gem.style.background=GEM_COLORS[grid[r][c]];el.appendChild(gem);frag.appendChild(el)}boardEl.replaceChildren(frag)}
+function showToast(text){toastEl.textContent=text;toastEl.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>toastEl.classList.remove('show'),1250)}
+function matches(){
+  const found=new Set();
+  // Проверяем четыре направления: вправо, вниз и обе диагонали.
+  const directions=[[0,1],[1,0],[1,1],[1,-1]];
+  for(let r=0;r<N;r++)for(let c=0;c<N;c++){
+    const type=grid[r][c];
+    if(type<0)continue;
+    for(const [dr,dc] of directions){
+      const pr=r-dr,pc=c-dc;
+      // Начинаем проверку только с первого камня цепочки.
+      if(pr>=0&&pr<N&&pc>=0&&pc<N&&grid[pr][pc]===type)continue;
+      const line=[];let rr=r,cc=c;
+      while(rr>=0&&rr<N&&cc>=0&&cc<N&&grid[rr][cc]===type){line.push(rr*N+cc);rr+=dr;cc+=dc;}
+      // Три, четыре, пять и более одинаковых камней исчезают целиком.
+      if(line.length>=3)for(const index of line)found.add(index);
+    }
+  }
+  return [...found];
+}
+function hasMove(){for(let r=0;r<N;r++)for(let c=0;c<N;c++){for(const [dr,dc] of [[0,1],[1,0]]){let rr=r+dr,cc=c+dc;if(rr>=N||cc>=N)continue;[grid[r][c],grid[rr][cc]]=[grid[rr][cc],grid[r][c]];let ok=matches().length>0;[grid[r][c],grid[rr][cc]]=[grid[rr][cc],grid[r][c]];if(ok)return true}}return false}
+async function flyCoins(indices){
+  const target=coinsEl.getBoundingClientRect();
+  const endX=target.left+target.width/2, endY=target.top+target.height/2;
+  const flights=[];
+  for(let i=0;i<indices.length;i++){
+    const cell=boardEl.children[indices[i]];
+    if(!cell)continue;
+    const rect=cell.getBoundingClientRect();
+    const coin=document.createElement('span');
+    coin.textContent='🪙';
+    coin.setAttribute('aria-hidden','true');
+    coin.style.cssText=`position:fixed;z-index:20;left:${rect.left+rect.width/2-12}px;top:${rect.top+rect.height/2-12}px;width:24px;height:24px;display:grid;place-items:center;font-size:21px;filter:drop-shadow(0 2px 3px #0009);pointer-events:none;`;
+    document.body.appendChild(coin);
+    const dx=endX-(rect.left+rect.width/2), dy=endY-(rect.top+rect.height/2);
+    const animation=coin.animate([
+      {transform:'translate(0,0) scale(.65)',opacity:0},
+      {transform:'translate(0,0) scale(1.2)',opacity:1,offset:.18},
+      {transform:`translate(${dx}px,${dy}px) scale(.35)`,opacity:.15}
+    ],{duration:460,delay:i*22,easing:'cubic-bezier(.2,.7,.25,1)',fill:'forwards'});
+    flights.push(animation.finished.catch(()=>{}).then(()=>coin.remove()));
+  }
+  await Promise.all(flights);
+}
+function createsMatchAt(r,c,type){
+  // Проверяем, создаст ли новый камень цепочку из трёх и более
+  // с уже стоящими соседями по горизонтали, вертикали или диагонали.
+  const dirs=[[0,1],[1,0],[1,1],[1,-1]];
+  for(const [dr,dc] of dirs){let count=1;
+    for(const sign of [-1,1]){let rr=r+dr*sign,cc=c+dc*sign;
+      while(rr>=0&&rr<N&&cc>=0&&cc<N&&grid[rr][cc]===type){count++;rr+=dr*sign;cc+=dc*sign;}
+    }
+    if(count>=3)return true;
+  }
+  return false;
+}
+function refillColumnHoles(){
+  // Сначала уплотняем оставшиеся камни вниз, затем заполняем пустоты сверху вниз.
+  for(let c=0;c<N;c++){
+    let write=N-1;
+    for(let r=N-1;r>=0;r--)if(grid[r][c]!==-1)grid[write--][c]=grid[r][c];
+    while(write>=0){
+      let chosen=rand(),tries=0;
+      do{chosen=rand();tries++;}while(createsMatchAt(write,c,chosen)&&tries<24);
+      grid[write][c]=chosen;write--;
+    }
+  }
+}
+async function resolve(){let combo=0;const coinsAtStart=coins;while(true){const m=matches();if(!m.length)break;combo++;
+  for(const idx of m){const el=boardEl.children[idx];if(el)el.classList.add('pop')}
+  await wait(170);
+  await flyCoins(m);
+  coins+=m.length;cleared+=m.length;setStats();
+  for(const idx of m){const r=Math.floor(idx/N),c=idx%N;grid[r][c]=-1}
+  refillColumnHoles();
+  render();await wait(100)
+}
+if(combo){lastGain=coins-coinsAtStart;msg.textContent=`Отлично! Комбо: ${combo} · +${lastGain} монет`;}
+if(!hasMove()){shuffleBoard();msg.textContent='Нет доступных ходов — поле автоматически перемешано!'}
+}
+let lastGain=0;
+function wait(ms){return new Promise(res=>setTimeout(res,ms))}
+async function animateSwap(a,b){
+  const ia=a.r*N+a.c, ib=b.r*N+b.c;
+  const cellA=boardEl.children[ia], cellB=boardEl.children[ib];
+  if(!cellA||!cellB)return;
+  const ra=cellA.getBoundingClientRect(), rb=cellB.getBoundingClientRect();
+  const gemA=cellA.querySelector('.gem'), gemB=cellB.querySelector('.gem');
+  const dx=rb.left-ra.left, dy=rb.top-ra.top;
+  const opts={duration:175,easing:'cubic-bezier(.2,.75,.25,1)',fill:'forwards'};
+  const animations=[];
+  if(gemA)animations.push(gemA.animate([{transform:'translate(0,0)'},{transform:`translate(${dx}px,${dy}px)`}],opts));
+  if(gemB)animations.push(gemB.animate([{transform:'translate(0,0)'},{transform:`translate(${-dx}px,${-dy}px)`}],opts));
+  await Promise.all(animations.map(anim=>anim.finished.catch(()=>{})));
+}
+async function swap(a,b){
+  if(busy||!a||!b)return;
+  if(Math.abs(a.r-b.r)+Math.abs(a.c-b.c)!==1)return;
+  busy=true;selected=null;const before=coins;
+  await animateSwap(a,b);
+  [grid[a.r][a.c],grid[b.r][b.c]]=[grid[b.r][b.c],grid[a.r][a.c]];
+  render();
+  if(!matches().length){
+    await animateSwap(a,b);
+    [grid[a.r][a.c],grid[b.r][b.c]]=[grid[b.r][b.c],grid[a.r][a.c]];
+    render();msg.textContent='Такой ход не создаёт ряд из трёх. Попробуй другой!';busy=false;return;
+  }
+  await resolve();lastGain=coins-before;setStats();if(lastGain>0)showToast(`+${lastGain} 🪙`);busy=false;
+}
+function shuffleBoard(){
+  // Перемешиваем до тех пор, пока не получим поле без готовых совпадений,
+  // но хотя бы с одним доступным ходом. На четырёх цветах это находится быстро.
+  let flat=grid.flat(),guard=0;
+  do{
+    for(let i=flat.length-1;i>0;i--){let j=Math.floor(Math.random()*(i+1));[flat[i],flat[j]]=[flat[j],flat[i]]}
+    grid=Array.from({length:N},(_,r)=>flat.slice(r*N,(r+1)*N));
+    flat=grid.flat();
+  }while((matches().length||!hasMove())&&guard++<500);
+  render();
+}
+function posFromEvent(e){const cell=e.target.closest('.cell');if(!cell)return null;return {r:+cell.dataset.r,c:+cell.dataset.c}}
+boardEl.addEventListener('click',async e=>{if(busy)return;const p=posFromEvent(e);if(!p)return;if(!selected){selected=p;render();return}if(selected.r===p.r&&selected.c===p.c){selected=null;render();return}if(Math.abs(selected.r-p.r)+Math.abs(selected.c-p.c)===1){const old=selected;await swap(old,p)}else{selected=p;render()}});
+boardEl.addEventListener('pointerdown',e=>{const p=posFromEvent(e);if(p)dragStart=p});boardEl.addEventListener('pointerup',async e=>{if(busy||!dragStart)return;const start=dragStart;dragStart=null;const target=document.elementFromPoint(e.clientX,e.clientY)?.closest('.cell');if(!target)return;const end={r:+target.dataset.r,c:+target.dataset.c};if(start.r!==end.r||start.c!==end.c){dragged=true;if(Math.abs(start.r-end.r)+Math.abs(start.c-end.c)===1)await swap(start,end)}});boardEl.addEventListener('click',e=>{if(dragged){dragged=false;e.stopImmediatePropagation()}},true);
+document.getElementById('newgame').addEventListener('click',()=>{if(busy||slotBusy)return;coins=0;cleared=0;selected=null;makeGrid();setStats();render();msg.textContent='Новая игра началась. Собирай камни и копи монетки!'});
+const gameScreen=document.getElementById('gameScreen'),slotScreen=document.getElementById('slotScreen');
+const lever=document.getElementById('lever'),reels=[0,1,2].map(i=>document.getElementById('reel'+i)),slotResult=document.getElementById('slotResult');
+const SLOT_SYMBOLS=['🍎','🍌','🍇','7️⃣'];let slotBusy=false;
+document.getElementById('openSlot').addEventListener('click',()=>{if(busy)return;gameScreen.classList.add('hidden');slotScreen.classList.remove('hidden');slotResult.textContent='Нажми на рычаг, чтобы испытать удачу!';});
+document.getElementById('closeSlot').addEventListener('click',()=>{if(slotBusy)return;slotScreen.classList.add('hidden');gameScreen.classList.remove('hidden');});
+function randomSlotSymbol(){const n=Math.random();return n<0.32?'🍎':n<0.62?'🍌':n<0.90?'🍇':'7'}
+function setReelSymbol(reel,symbol){reel.textContent=symbol;reel.classList.toggle('seven',symbol==='7')}
+async function pullLever(){
+ if(slotBusy)return;if(coins<10){slotResult.textContent='Не хватает монет! Нужно ещё '+(10-coins)+' 🪙';return}
+ slotBusy=true;coins-=10;setStats();slotResult.textContent='Барабаны вращаются…';lever.classList.add('pulled');await wait(500);lever.classList.remove('pulled');
+ const outcome=[randomSlotSymbol(),randomSlotSymbol(),randomSlotSymbol()],durations=[1050,1450,1850];
+ reels.forEach((reel,i)=>{reel.classList.add('spinning');const timer=setInterval(()=>{setReelSymbol(reel,randomSlotSymbol())},65);setTimeout(()=>{clearInterval(timer);setReelSymbol(reel,outcome[i]);reel.classList.remove('spinning')},durations[i]);});
+ await wait(Math.max(...durations)+80);let prize=0;if(outcome.every(x=>x===outcome[0]))prize=({'🍎':20,'🍌':50,'🍇':80,'7':200})[outcome[0]]||0;
+ const adjacentPair=outcome[0]===outcome[1]||outcome[1]===outcome[2];
+ if(prize){coins+=prize;setStats();slotResult.textContent='ДЖЕКПОТ! Ты выиграл '+prize+' 🪙!';showToast('🎉 Выигрыш: +'+prize+' 🪙')}
+ else if(adjacentPair){coins+=10;setStats();slotResult.textContent='Два одинаковых рядом! Возврат ставки: +10 🪙';showToast('↩️ Возврат: +10 🪙')}
+ else slotResult.textContent='Не повезло! Попробуй ещё раз.';slotBusy=false;
+}
+lever.addEventListener('click',pullLever);
+document.getElementById('shuffle').addEventListener('click',()=>{if(busy)return;selected=null;shuffleBoard();msg.textContent='Камни перемешаны. Продолжай собирать ряды!'});
+makeGrid();setStats();render();
+})();
+</script></body></html>
